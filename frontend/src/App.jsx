@@ -7,6 +7,7 @@ import { createTask, deleteTask, getTasks, updateTask } from './services/api'
 function App() {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -28,16 +29,23 @@ function App() {
   async function handleTaskCreated(task) {
     try {
       setError('')
+      setSaving(true)
+
       const newTask = await createTask(task)
+
       setTasks((currentTasks) => [...currentTasks, newTask])
     } catch (error) {
       setError('Não foi possível criar a tarefa.')
+    } finally {
+      setSaving(false)
     }
   }
 
   async function handleTaskUpdate(task) {
     try {
       setError('')
+      setSaving(true)
+
       const updatedTask = await updateTask(task.id, task)
 
       setTasks((currentTasks) =>
@@ -49,12 +57,16 @@ function App() {
       )
     } catch (error) {
       setError('Não foi possível atualizar a tarefa.')
+    } finally {
+      setSaving(false)
     }
   }
 
   async function handleTaskDelete(id) {
     try {
       setError('')
+      setSaving(true)
+
       await deleteTask(id)
 
       setTasks((currentTasks) =>
@@ -62,6 +74,8 @@ function App() {
       )
     } catch (error) {
       setError('Não foi possível excluir a tarefa.')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -69,16 +83,28 @@ function App() {
     <main className="kanban">
       <h1>Mini Kanban</h1>
 
-      <TaskForm onTaskCreated={handleTaskCreated} />
+      <TaskForm
+        onTaskCreated={handleTaskCreated}
+        saving={saving}
+      />
 
-      {loading && <p>Carregando tarefas...</p>}
+      {loading && (
+        <p className="feedback">Carregando tarefas...</p>
+      )}
 
-      {error && <p>{error}</p>}
+      {saving && (
+        <p className="feedback">Salvando alterações...</p>
+      )}
 
-      {!loading && !error && (
+      {error && (
+        <p className="feedback error">{error}</p>
+      )}
+
+      {!loading && (
         <div className="kanban-board">
           <Column
             title="A fazer"
+            status="todo"
             tasks={tasks.filter((task) => task.status === 'todo')}
             onDelete={handleTaskDelete}
             onUpdate={handleTaskUpdate}
@@ -86,6 +112,7 @@ function App() {
 
           <Column
             title="Em progresso"
+            status="doing"
             tasks={tasks.filter((task) => task.status === 'doing')}
             onDelete={handleTaskDelete}
             onUpdate={handleTaskUpdate}
@@ -93,6 +120,7 @@ function App() {
 
           <Column
             title="Concluídas"
+            status="done"
             tasks={tasks.filter((task) => task.status === 'done')}
             onDelete={handleTaskDelete}
             onUpdate={handleTaskUpdate}

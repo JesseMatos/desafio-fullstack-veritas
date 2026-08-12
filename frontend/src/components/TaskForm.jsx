@@ -1,15 +1,19 @@
 import { useState } from 'react'
 
-function TaskForm({ onTaskCreated }) {
+function TaskForm({ onTaskCreated, saving }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
 
   function handleSubmit(event) {
     event.preventDefault()
 
+    if (!title.trim()) {
+      return
+    }
+
     onTaskCreated({
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       status: 'todo',
     })
 
@@ -24,16 +28,18 @@ function TaskForm({ onTaskCreated }) {
         placeholder="Título da tarefa"
         value={title}
         onChange={(event) => setTitle(event.target.value)}
+        disabled={saving}
       />
 
       <textarea
         placeholder="Descrição (opcional)"
         value={description}
         onChange={(event) => setDescription(event.target.value)}
+        disabled={saving}
       />
 
-      <button type="submit">
-        Adicionar tarefa
+      <button type="submit" disabled={saving || !title.trim()}>
+        {saving ? 'Adicionando...' : 'Adicionar tarefa'}
       </button>
     </form>
   )
