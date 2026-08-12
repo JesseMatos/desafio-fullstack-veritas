@@ -8,6 +8,7 @@ import (
 )
 
 var tasks = []Task{}
+var nextTaskID = 1
 
 func isValidStatus(status string) bool {
 	return status == "todo" ||
@@ -40,7 +41,8 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task.ID = len(tasks) + 1
+	task.ID = nextTaskID
+	nextTaskID++
 
 	tasks = append(tasks, task)
 
