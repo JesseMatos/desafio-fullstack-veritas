@@ -41,7 +41,7 @@ func main() {
 			case http.MethodDelete:
 				deleteTask(w, r)
 			default:
-				http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)	
+				http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 			}
 			return
 		}
